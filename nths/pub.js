@@ -1,53 +1,83 @@
+var User   = require('./models/user'); 
+var LocalStrategy = require('passport-local').Strategy;
 
-var User   = require('../models/user'); 
-
-module.exports = function(app, express) {
+module.exports = function(app, express, passport) {
 	var apiRoutes = express.Router(); 
+	
+	passport.serializeUser(function(user, done) {
+		  done(null, user);
+		});
+
+	passport.deserializeUser(function(id, done) {
+		  User.findById(id, function(err, user) {
+		    done(err, user);
+		  });
+	});
+	
+//	passport.deserializeUser(function(user, done) {
+//		  done(null, user);
+//	});
+	
+	passport.use(new LocalStrategy(
+		function(username, password, done) {
+			console.log('passport in local strategy...');
+			User.findOne({'name': username, }, function(err, user){
+				if (err) {
+					return done(err);
+				}
+
+				if (!user) {
+					return done(null, false, { message: 'Incorrect username.'});
+				}
+
+				if (user.password != password) {
+					return done(null, false, { message: 'Incorrect password.' });
+				}
+
+				return done(null, user);
+			});
+		}
+	));
 	
 	apiRoutes.get('/hello', function(req, res) {
 		res.json({ message: 'Welcome to hello!' });
 	});
 	
-	apiRoutes.get('/login', function(req, res) {
-		res.json({ message: 'Welcome to login!' });
+	apiRoutes.post('/login',
+		passport.authenticate('local'),
+		function(req, res) {
+			console.log('login success...');
+			// If this function gets called, authentication was successful.
+			// `req.user` contains the authenticated user.
+			res.json({ username: req.user.username });	
 	});
 	
-	apiRoutes.post('/authenticate', function(req, res) {
+//	apiRoutes.get('/login', function(req, res) {
+//		res.json({ message: 'Welcome to login!' });
+//	});
+	
+//	apiRoutes.post('/login', function(req, res) {
+//		console.log('received login post request');
+//		passport.authenticate('local', {
+//		    successRedirect: '/loginSuccess',
+//		    failureRedirect: '/loginFailure'
+//		})
+//	});
+	
+//	apiRoutes.post('/login',
+//		passport.authenticate('local', {
+//			successRedirect: '/loginSuccess',
+//			failureRedirect: '/loginFailure'
+//		})
+//	);
+	
+	apiRoutes.get('/loginFailure', function(req, res, next) {
+		  res.send('Failed to authenticate');
+	});
 
-		  // find the user
-		  User.findOne({
-		    name: req.body.name
-		  }, function(err, user) {
-
-		    if (err) throw err;
-
-		    if (!user) {
-		      res.json({ success: false, message: 'Authentication failed. User not found.' });
-		    } else if (user) {
-
-		      // check if password matches
-		      if (user.password != req.body.password) {
-		        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-		      } else {
-
-		        // if user is found and password is right
-		        // create a token
-		        var token = jwt.sign(user, app.get('superSecret'), {
-		          expiresInMinutes: 1440 // expires in 24 hours
-		        });
-
-		        // return the information including token as JSON
-		        res.json({
-		          success: true,
-		          message: 'Enjoy your token!',
-		          token: token
-		        });
-		      }   
-
-		    }
-
-		  });
+	apiRoutes.get('/loginSuccess', function(req, res, next) {
+		  res.send('Successfully authenticated');
 	});
 	
-	app.use('/nths/pub', apiRoutes);
+	app.use('/nths/pub/' + app.locals.nths_version, apiRoutes);
 }

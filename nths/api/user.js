@@ -9,5 +9,5 @@ module.exports = function(app, express) {
 		});
 	});
 
-	app.use('/nths/api', apiRoutes);
+	app.use('/nths/api/' + app.locals.nths_version, apiRoutes);
 }

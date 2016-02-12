@@ -1,11 +1,23 @@
 {
-  "name": "node-token-jwt",
+  "name": "rest-node-auth",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vollov/rest-node-auth"
+  },
+  "license": "MIT",
   "main": "server.8000.js",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "connect-mongodb-session": "^1.1.1",
+    "errorhandler": "^1.4.3",
     "express": "^4.13.4",
-    "jsonwebtoken": "^5.5.4",
+    "express-session": "^1.13.0",
+    "method-override": "^2.3.5",
     "mongoose": "^4.4.3",
-    "morgan": "^1.6.1"
+    "morgan": "^1.6.1",
+    "multer": "^1.1.0",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "^2.3.0"
   }
 }

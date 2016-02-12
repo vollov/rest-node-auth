@@ -1,4 +1,20 @@
 
-/nths/api/user/xxx	-- api need authentication
-/nths/pub/login		-- login in to get token
+/nths/api/user/xxx	-- api need scan by middleware.authentication()
+/nths/pub/login		-- login in to get token (POST)
 /nths/pub/hello		-- public api, no authentication required
+
+
+app.post('/nths/pub/login',
+  passport.authenticate('local', {
+    successRedirect: '/loginSuccess',
+    failureRedirect: '/loginFailure'
+  })
+);
+
+app.get('/loginFailure', function(req, res, next) {
+  res.send('Failed to authenticate');
+});
+
+app.get('/loginSuccess', function(req, res, next) {
+  res.send('Successfully authenticated');
+});
