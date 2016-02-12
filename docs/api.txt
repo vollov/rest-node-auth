@@ -1,0 +1,4 @@
+
+/nths/api/user/xxx	-- api need authentication
+/nths/pub/login		-- login in to get token
+/nths/pub/hello		-- public api, no authentication required

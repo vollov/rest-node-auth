@@ -1,5 +1,5 @@
 // =======================
-// get the packages we need ============
+// package import
 // =======================
 var express     = require('express');
 var app         = express();
@@ -9,12 +9,14 @@ var mongoose    = require('mongoose');
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
-var User   = require('./app/models/user'); // get our mongoose model
+
     
+var midware = require('./lib/midware')
+var nths = require('./nths/lib/midware')
 // =======================
-// configuration =========
+// configuration
 // =======================
-var port = process.env.PORT || 8080; // used to create, sign, and verify tokens
+var port = process.env.PORT || 8000; // used to create, sign, and verify tokens
 mongoose.connect(config.database); // connect to database
 app.set('superSecret', config.secret); // secret variable
 
@@ -26,18 +28,20 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 // =======================
-// routes ================
+// routes 
 // =======================
-// basic route
-app.get('/', function(req, res) {
-    res.send('Hello! The API is at http://localhost:' + port + '/api');
-});
 
-// API ROUTES -------------------
-// we'll get to these in a second
+app.all('*', midware.header);
+app.all('/nths/api/*', nths.authentication);
+
+//=======================
+//load api
+//=======================
+require('./nths/pub')(app,express);
+require('./nths/api/user')(app,express);
 
 // =======================
-// start the server ======
+// start the server 
 // =======================
 app.listen(port);
-console.log('Magic happens at http://localhost:' + port);
+console.log('Server start at http://localhost:' + port);
