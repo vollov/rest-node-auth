@@ -5,7 +5,7 @@ module.exports = function(app, express, passport) {
 	var apiRoutes = express.Router(); 
 	
 	passport.serializeUser(function(user, done) {
-		  done(null, user);
+		  done(null, user.id);
 		});
 
 	passport.deserializeUser(function(id, done) {
@@ -20,21 +20,26 @@ module.exports = function(app, express, passport) {
 	
 	passport.use(new LocalStrategy(
 		function(username, password, done) {
-			console.log('passport in local strategy...');
-			User.findOne({'name': username, }, function(err, user){
-				if (err) {
-					return done(err);
-				}
+			console.log('passport in local strategy...{' + username + ',' + password + '}');
+			process.nextTick(function() {
+				User.findOne({'name': username, }, function(err, user){
+					if (err) {
+						console.log('passport in local strategy - error');
+						return done(err);
+					}
 
-				if (!user) {
-					return done(null, false, { message: 'Incorrect username.'});
-				}
+					if (!user) {
+						console.log('passport in local strategy - Incorrect username');
+						return done(null, false, { message: 'Incorrect username.'});
+					}
 
-				if (user.password != password) {
-					return done(null, false, { message: 'Incorrect password.' });
-				}
-
-				return done(null, user);
+					if (user.password != password) {
+						console.log('passport in local strategy - Incorrect password');
+						return done(null, false, { message: 'Incorrect password.' });
+					}
+					console.log('passport in local strategy - done');
+					return done(null, user);
+				});
 			});
 		}
 	));
@@ -50,7 +55,8 @@ module.exports = function(app, express, passport) {
 			// If this function gets called, authentication was successful.
 			// `req.user` contains the authenticated user.
 			res.json({ username: req.user.username });	
-	});
+		}
+	);
 	
 //	apiRoutes.get('/login', function(req, res) {
 //		res.json({ message: 'Welcome to login!' });

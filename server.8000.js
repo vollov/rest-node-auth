@@ -28,13 +28,22 @@ var nths = require('./nths/lib/midware')
 // =======================
 var port = process.env.PORT || 8000; // used to create, sign, and verify tokens
 mongoose.connect(config.database); // connect to database
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+	console.log('db connected');
+});
+
+mongoose.set('debug', true);
+
 app.set('superSecret', config.secret); // secret variable
 
 //all server settings
 app.locals.port = 8000;
 app.locals.mongo_options = { uri: 'mongodb://localhost:27017/demo', collection: 'sessions' }
 app.locals.session_secret = 'uwotm8xxc'
-app.locals.session_age = 1209600000 // in ms 14 * 24 * 60 * 60
+app.locals.session_age = 60000//1209600000 // in ms 14 * 24 * 60 * 60
 
 app.locals.nths_version = 'v1.0'
 	
