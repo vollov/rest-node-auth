@@ -11,6 +11,59 @@ https://scotch.io/tutorials/easy-node-authentication-setup-and-local
 http://stackoverflow.com/questions/17400758/comprehensive-tutorial-for-nodejs-passport-local-strategy-setup
 
 
+========================
+session store:
+
+{ "_id" : "xYLhs_4GwajYbIO8256Mgn4YWRe7gyfK", "session" : 
+{ "cookie" : { "originalMaxAge" : 60000, "expires" : ISODate("2016-02-14T03:40:32.549Z"), "secure" : null, "httpOnly" : true, "domain" : null, "path" : "/" }, 
+"passport" : { "user" : "56bd5d83f002670a337c1a12" } 
+}, "expires" : ISODate("2016-02-14T03:40:32.549Z") }
+
+
+jsonwebtoken
+===============================
+when user authenticated, server need generate a 'token'
+
+app.locals.seesion_second = 3600
+
+var token = jwt.sign(user, user.password, {
+    expiresInMinutes: app.locals.seesion_second/60 // expires in 24 hours =24*60min 1440
+});
+
+// route middleware to verify a token
+apiRoutes.use(function(req, res, next) {
+
+  // check header or url parameters or post parameters for token
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+  // decode token
+  if (token) {
+
+    // verifies secret and checks exp
+    jwt.verify(token, app.get('superSecret'), function(err, decoded) {      
+      if (err) {
+        return res.json({ success: false, message: 'Failed to authenticate token.' });    
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;    
+        next();
+      }
+    });
+
+  } else {
+
+    // if there is no token
+    // return an error
+    return res.status(403).send({ 
+        success: false, 
+        message: 'No token provided.' 
+    });
+    
+  }
+});
+
+
+=================================
 
 		  // find the user
 		  User.findOne({

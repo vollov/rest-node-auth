@@ -5,10 +5,12 @@ module.exports = function(app, express, passport) {
 	var apiRoutes = express.Router(); 
 	
 	passport.serializeUser(function(user, done) {
+		console.log('passport serializeUser');
 		  done(null, user.id);
 		});
 
 	passport.deserializeUser(function(id, done) {
+		console.log('passport deserializeUser');
 		  User.findById(id, function(err, user) {
 		    done(err, user);
 		  });
@@ -37,7 +39,7 @@ module.exports = function(app, express, passport) {
 						console.log('passport in local strategy - Incorrect password');
 						return done(null, false, { message: 'Incorrect password.' });
 					}
-					console.log('passport in local strategy - done');
+					console.log('passport in local strategy - done=' + user.name);
 					return done(null, user);
 				});
 			});
@@ -51,10 +53,9 @@ module.exports = function(app, express, passport) {
 	apiRoutes.post('/login',
 		passport.authenticate('local'),
 		function(req, res) {
-			console.log('login success...');
-			// If this function gets called, authentication was successful.
-			// `req.user` contains the authenticated user.
-			res.json({ username: req.user.username });	
+			console.log('login success...' + req.body.username);
+			//res.json({ username: req.user.username });	
+			res.status(200).send({ username: req.body.username });
 		}
 	);
 	
