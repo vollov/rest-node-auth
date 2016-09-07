@@ -1,6 +1,6 @@
 'use strict';
 
-exports.db_test = {
+exports.nths_pub_test = {
 	
 	setUp : function(done) {
 		console.log('\ndb setUp()...');

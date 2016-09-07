@@ -25,7 +25,7 @@ var grunt_demo = require('../lib/grunt-demo.js');
 exports['awesome'] = {
   setUp: function(done) {
     // setup here
-//	console.log('\nawsome setUp()...');
+	console.log('\nawsome setUp()...');
     done();
   },
   'no args': function(test) {
